@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 import ReactPaginate from 'react-paginate'
@@ -15,32 +15,30 @@ export default function App() {
 	const [query, setQuery] = useState('')
 	const [page, setPage] = useState(1)
 	const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null)
-	const [errorText, setErrorText] = useState<string | null>(null)
 
-	const { data, isLoading, isError } = useQuery({
+	const { data, isLoading, isFetching, isError, isSuccess } = useQuery({
 		queryKey: ['movies', query, page],
 		queryFn: () => fetchMovies(query, page),
 		enabled: query !== '',
+		placeholderData: keepPreviousData,
 	})
 
 	const handleSearch = (query: string) => {
 		setQuery(query)
 		setPage(1)
-		setErrorText(null)
 	}
 
 	useEffect(() => {
 		if (isError) {
 			toast.error('Failed to fetch movies')
-			setErrorText('There was an error, please try again...')
 		}
 	}, [isError])
 
 	useEffect(() => {
-		if (data && data.results.length === 0) {
-			setErrorText('No movies found.')
+		if (isSuccess && data.results.length === 0) {
+			toast('No movies found.')
 		}
-	}, [data])
+	}, [isSuccess, data])
 
 	return (
 		<div className={css.app}>
@@ -61,12 +59,12 @@ export default function App() {
 				/>
 			)}
 
-			{isLoading && <Loader />}
-
-			{errorText ? (
-				<ErrorMessage message={errorText} />
+			{isLoading || isFetching ? (
+				<Loader />
+			) : isError ? (
+				<ErrorMessage />
 			) : (
-				data && <MovieGrid movies={data.results} onSelect={setSelectedMovie} />
+				<MovieGrid movies={data.results} onSelect={setSelectedMovie} />
 			)}
 
 			{selectedMovie && (
