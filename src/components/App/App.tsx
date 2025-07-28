@@ -35,7 +35,7 @@ export default function App() {
 	}, [isError])
 
 	useEffect(() => {
-		if (isSuccess && data.results.length === 0) {
+		if (isSuccess && data?.results.length === 0) {
 			toast('No movies found.')
 		}
 	}, [isSuccess, data])
@@ -63,9 +63,9 @@ export default function App() {
 				<Loader />
 			) : isError ? (
 				<ErrorMessage />
-			) : (
-				<MovieGrid movies={data!.results} onSelect={setSelectedMovie} />
-			)}
+			) : data?.results ? (
+				<MovieGrid movies={data.results} onSelect={setSelectedMovie} />
+			) : null}
 
 			{selectedMovie && (
 				<MovieModal
