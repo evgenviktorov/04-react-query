@@ -64,7 +64,7 @@ export default function App() {
 			) : isError ? (
 				<ErrorMessage />
 			) : (
-				<MovieGrid movies={data.results} onSelect={setSelectedMovie} />
+				<MovieGrid movies={data!.results} onSelect={setSelectedMovie} />
 			)}
 
 			{selectedMovie && (
